@@ -1,0 +1,63 @@
+import React, {Component} from 'react';
+import {tasksRef} from '../reference'
+
+export default class UserListIstem extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      textUpdate: '',
+      key: ''
+    };
+    this.value = this.value.bind(this);
+    this.UserUpdatehandleChange = this.UserUpdatehandleChange.bind(this);
+
+  };
+
+  deleteUser = () => {
+    const {key} = this.props.user;
+    tasksRef.child(key).remove();
+  };
+
+  UserUpdatehandleChange = (e) => {
+    this.setState({textUpdate: e.target.value});
+  };
+
+  value = (text, key) => {
+
+    this.setState({key: this.props.user.key, textUpdate: this.props.user.text});
+
+  }
+  ClickUpdateItem = () => {
+    tasksRef.child(this.state.key).update({text: this.state.textUpdate});
+  }
+
+  render() {
+    return (<div>
+      <ul className="pb-1 list-group">
+        <li className="list-group-item d-flex justify-content-between align-items-center">
+          <span onClick={(e) => this.value(this.props.user.text, this.props.user.key)} data-toggle="modal" data-target={`#dinamikID-${this.props.user.id}`}>{this.props.user.text}</span>
+          <span onClick={this.deleteUser} className="badge badge-primary badge-pill">Sil</span>
+        </li>
+      </ul>
+
+      <div className="modal fade" id={`dinamikID-${this.props.user.id}`} tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div className="modal-dialog" role="document">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
+              <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div className="modal-body">
+              <input required="required" value={this.state.textUpdate} onChange={this.UserUpdatehandleChange.bind(this)} type="text" className="form-control mb-2 mb-sm-0" id="inlineFormInput" placeholder="Jane Doe"/>
+            </div>
+            <div className="modal-footer">
+              <button onClick={this.ClickUpdateItem} type="button" className="btn btn-primary" data-dismiss="modal">Save changes</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>)
+  }
+}
