@@ -4,3 +4,7 @@ body {
 span.badge{
   cursor: pointer;
 }
+
+.mt-10 {
+  margin-top: 3rem !important;
+}

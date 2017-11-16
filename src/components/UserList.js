@@ -3,10 +3,16 @@ import {tasksRef} from '../reference';
 import {orderBy} from 'lodash';
 import UserListItem from './UserListItem'
 export default class UserList extends Component {
-  state = {
-    x: []
-  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      x: []
+    };
+  }
+
   componentDidMount() {
+
     tasksRef.on('value', snap => {
       const x = [];
       snap.forEach(shot => {
@@ -22,7 +28,6 @@ export default class UserList extends Component {
   }
   render() {
     const orderedTasks = orderBy(this.state.x, ['id'], ['desc']);
-
-    return (orderedTasks.map(user => (<UserListItem key={user.key} user={user}/>)))
+    return orderedTasks.map(user => <UserListItem key={user.key} user={user}/>)
   }
 }

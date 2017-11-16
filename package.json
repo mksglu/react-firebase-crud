@@ -15,9 +15,10 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "firebase": "^4.6.0",
+    "babel-eslint": "^7.2.3",
+    "eslint": "^3.19.0",
+    "firebase": "^4.6.2",
     "jquery": "^3.2.1",
-    "lodash": "^4.17.4",
-    "re-base": "^3.0.5"
+    "lodash": "^4.17.4"
   }
 }
