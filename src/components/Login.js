@@ -1,14 +1,17 @@
 import React, {Component} from 'react';
 import {login, auth} from "../helpers/auth";
 import * as firebase from 'firebase';
-export default class Login extends Component {
+import {connect} from 'react-redux';
+import {activateGeod, closeGeod} from '../redux';
+
+export class Login extends Component {
     constructor(props) {
         super(props)
         this.state = {
             loginResponsive: 'Merhaba, şimdi giriş yapmak ister misin?',
             password: '',
             user: '',
-            isLogged: false,
+            //isLogged: false,
             email: ''
         }
         this.handleSubmit = this
@@ -39,13 +42,20 @@ export default class Login extends Component {
         })
     }
     componentDidMount() {
+
         this.removeListener = firebase
             .auth()
             .onAuthStateChanged((user) => {
                 if (user) {
-                    this.setState({email: user.email, isLogged: true})
+                    this
+                        .props
+                        .activateGeod({email: user.email, isLogged: true})
+                    //this.setState({email: user.email, isLogged: true})
                 } else {
-                    this.setState({isLogged: false})
+                    this
+                        .props
+                        .activateGeod({isLogged: false})
+                    //this.setState({isLogged: false})
                 }
             })
     }
@@ -62,8 +72,8 @@ export default class Login extends Component {
                     <div className="form-row align-items-center">
                         <div className="col-md-6">
                             <h2>Please Login</h2>
-                            {this.state.isLogged
-                                ? `Hoşgeldin ${this.state.email}`
+                            {this.props.authed.isLogged
+                                ? `Hoşgeldin ${this.props.authed.email}`
                                 : this.state.loginResponsive
 }
                             <hr/>
@@ -125,3 +135,14 @@ export default class Login extends Component {
         );
     }
 }
+
+// AppContainer.js
+const mapStateToProps = (state, ownProps) => ({authed: state.geod}); //burası
+
+const mapDispatchToProps = {
+    activateGeod
+};
+
+const AppContainer = connect(mapStateToProps, mapDispatchToProps)(Login);
+
+export default AppContainer;

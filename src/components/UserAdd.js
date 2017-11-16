@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
 import {tasksRef} from '../reference';
 import firebase from 'firebase'
-export default class UserAdd extends Component {
+import {connect} from 'react-redux';
+import {activateGeod} from '../redux';
+
+export class UserAdd extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      UserAddResponsive: '',
-      text: '',
-      authed: false
+
+      text: ''
     };
     this.handleChange = this
       .handleChange
@@ -17,25 +19,11 @@ export default class UserAdd extends Component {
       .bind(this);
 
   }
-  componentDidMount() {
-    this.removeListener = firebase
-      .auth()
-      .onAuthStateChanged((user) => {
-        if (user) {
-          this.setState({authed: true})
-        } else {
-          this.setState({authed: false})
-        }
-      })
-  }
 
-  componentWillUnmount() {
-    this.removeListener()
-  }
   handleSubmit(event) {
     event.preventDefault();
 
-    if (this.state.authed) {
+    if (this.props.authed.isLogged) {
       const newUser = {
         text: this.state.text,
         id: Date.now()
@@ -43,7 +31,11 @@ export default class UserAdd extends Component {
       tasksRef.push(newUser);
       this.setState({text: ''});
     } else {
-      this.setState({UserAddResponsive: 'Giriş yapmalısın canım.'})
+
+      //this.setState({UserAddResponsive: 'Giriş yapmalısın canım.'})
+      this
+      .props
+      .activateGeod({UserAddResponsive: 'Üye eklemek için giriş yapmalısın.'})
     }
 
   }
@@ -56,30 +48,35 @@ export default class UserAdd extends Component {
 
     return (
 
-      
-        <form onSubmit={this.handleSubmit}>
-          <div className="form-row align-items-center">
-            <div className="col-md-4">
-              <label className="sr-only" htmlFor="inlineFormInput">Name</label>
-              <input
-                required="required"
-                value={this.state.text}
-                onChange={this.handleChange}
-                type="text"
-                className="form-control mb-2 mb-sm-0"
-                id="inlineFormInput"
-                placeholder="Mert Köseoğlu"/>
-            </div>
-            
-            <div className="col-md-3">
-              <button type="submit" className="btn btn-primary">Submit</button>
-            </div>
-            
+      <form onSubmit={this.handleSubmit}>
+        <div className="form-row align-items-center">
+          <div className="col-md-4">
+            <label className="sr-only" htmlFor="inlineFormInput">Name</label>
+            <input
+              required="required"
+              value={this.state.text}
+              onChange={this.handleChange}
+              type="text"
+              className="form-control mb-2 mb-sm-0"
+              id="inlineFormInput"
+              placeholder="Mert Köseoğlu"/>
           </div>
-          {this.state.UserAddResponsive}
-        </form>
-       
+
+          <div className="col-md-3">
+            <button type="submit" className="btn btn-primary">Submit</button>
+          </div>
+
+        </div>
+        {this.props.authed.UserAddResponsive}
+      </form>
 
     );
   }
 }
+
+// AppContainer.js
+const mapStateToProps = (state, ownProps) => ({authed: state.geod}); //burası
+const mapDispatchToProps = {
+  activateGeod
+};
+export default connect(mapStateToProps, mapDispatchToProps)(UserAdd);

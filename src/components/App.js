@@ -4,9 +4,12 @@ import UserList from './UserList';
 import Login from './Login'
 import firebase from 'firebase'
 
+
+
 export default class App extends Component {
 
   render() {
+    console.log(this.props.geod)
     return (
       <div className="container">
         <div className="row">
@@ -22,3 +25,4 @@ export default class App extends Component {
     );
   }
 }
+ 
