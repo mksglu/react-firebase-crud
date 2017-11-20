@@ -6,7 +6,7 @@ import {
 
 import thunk from 'redux-thunk';
 
-// actions.js
+// actions.js test
 export const activateGeod = geod => ({
   type: 'ACTIVATE_GEOD',
   geod,
