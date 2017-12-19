@@ -1,94 +1,73 @@
 import React, {Component} from 'react';
-import {login, auth} from "../helpers/auth";
-import * as firebase from 'firebase';
+import PropTypes from 'prop-types';
+import {logIn} from 'redux/actions/authActions';
 import {connect} from 'react-redux';
-import {activateGeod, closeGeod} from '../redux';
 
 export class Login extends Component {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
-            loginResponsive: 'Merhaba, şimdi giriş yapmak ister misin?',
             password: '',
-            user: '',
-            //isLogged: false,
             email: ''
-        }
+        };
         this.handleSubmit = this
             .handleSubmit
             .bind(this);
         this.handleChange = this
             .handleChange
-            .bind(this)
+            .bind(this);
+    }
+
+    componentWillReceiveProps(nextProps){
+        if(nextProps.authSuccess){
+            nextProps.changeAuth();
+        }
     }
 
     handleSubmit = (e) => {
-        e.preventDefault()
-
-        login(this.state.user, this.state.password).then(result => {
-            this.setState({loginResponsive: `Hoşgeldin ${this.state.user}`})
-        }).catch(error => {
-            this.setState({loginResponsive: error.message})
-        })
+        e.preventDefault();
+        console.log(this.state);
+        const { email, password } = this.state;
+        this.props.dispatch(logIn(email, password));
+        //
+        // login(this.state.user, this.state.password).then(result => {
+        //     this.setState({ loginResponsive: `Hoşgeldin ${this.state.user}` });
+        // }).catch(error => {
+        //     this.setState({ loginResponsive: error.message });
+        // });
         /*auth(this.state.user,this.state.password).catch((error) => {
-            this.setState({loginResponsive:error.message})
-        })*/
+         this.setState({loginResponsive:error.message})
+         })*/
 
-    }
+    };
 
     handleChange = (e) => {
         this.setState({
             [e.target.name]: e.target.value
-        })
-    }
-    componentDidMount() {
+        });
+    };
 
-        this.removeListener = firebase
-            .auth()
-            .onAuthStateChanged((user) => {
-                if (user) {
-                    this
-                        .props
-                        .activateGeod({email: user.email, isLogged: true})
-                    //this.setState({email: user.email, isLogged: true})
-                } else {
-                    this
-                        .props
-                        .activateGeod({isLogged: false})
-                    //this.setState({isLogged: false})
-                }
-            })
-    }
-
-    componentWillUnmount() {
-        this.removeListener()
-    }
     render() {
-
+        const { authLoading, authError } = this.props;
         return (
-
-            <div className="mt-10">
+            <div className="col-md-12">
                 <form onSubmit={this.handleSubmit}>
                     <div className="form-row align-items-center">
                         <div className="col-md-6">
                             <h2>Please Login</h2>
-                            {this.props.authed.isLogged
-                                ? `Hoşgeldin ${this.props.authed.email}`
-                                : this.state.loginResponsive
-}
                             <hr/>
                             <div className="form-group has-danger">
                                 <label className="sr-only" htmlFor="email">E-Mail Address</label>
                                 <div className="input-group mb-2 mr-sm-2 mb-sm-0">
                                     <div
                                         className="input-group-addon"
-                                        style={{
-                                        width: '2.6rem'
-                                    }}><i className="fa fa-at"/></div>
+                                        style={{ width: '2.6rem' }}>
+                                        <i className="fa fa-at"/>
+                                    </div>
                                     <input
                                         type="text"
-                                        name="user"
-                                        value={this.state.user}
+                                        name="email"
+                                        value={this.state.email}
                                         onChange={this.handleChange}
                                         className="form-control"
                                         id="email"
@@ -107,8 +86,8 @@ export class Login extends Component {
                                     <div
                                         className="input-group-addon"
                                         style={{
-                                        width: '2.6rem'
-                                    }}><i className="fa fa-key"/></div>
+                                            width: '2.6rem'
+                                        }}><i className="fa fa-key"/></div>
                                     <input
                                         type="password"
                                         name="password"
@@ -122,10 +101,26 @@ export class Login extends Component {
                         </div>
                     </div>
 
+                    {authError.error &&
+                    <div className="alert alert-danger" role="alert">
+                        <strong>Login Error</strong>
+                        <ul>
+                            <li>
+                                Message: {authError.message || '-'}
+                            </li>
+                            <li>
+                                Code: {authError.code || '-'}
+                            </li>
+                        </ul>
+                    </div>
+                    }
+
                     <div className="form-row align-items-center">
                         <div className="col-auto">
-                            <button type="submit" className="btn btn-success"><i className="fa fa-sign-in"/>
-                                &nbsp; Login</button>
+                            <button disabled={authLoading} type="submit" className="btn btn-success">
+                                <i className="fa fa-sign-in"/>&nbsp;
+                                {authLoading ? 'Authenticating.. ' : 'Login'}
+                            </button>
                             <a className="btn btn-link" href="/password/reset">Forgot Your Password?</a>
                         </div>
                     </div>
@@ -136,13 +131,19 @@ export class Login extends Component {
     }
 }
 
-// AppContainer.js
-const mapStateToProps = (state, ownProps) => ({authed: state.geod}); //burası
-
-const mapDispatchToProps = {
-    activateGeod
+Login.propTypes = {
+    authError: PropTypes.object,
+    authLoading: PropTypes.bool,
+    authSuccess: PropTypes.bool,
+    changeAuth: PropTypes.func
 };
 
-const AppContainer = connect(mapStateToProps, mapDispatchToProps)(Login);
+const mapStateToProps = state => {
+    return {
+        authError: state.auth.authError,
+        authLoading: state.auth.loading,
+        authSuccess: state.auth.success,
+    };
+};
 
-export default AppContainer;
+export default connect(mapStateToProps)(Login);
